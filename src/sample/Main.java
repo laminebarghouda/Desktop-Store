@@ -1,18 +1,20 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Product;
@@ -36,7 +38,7 @@ public class Main extends Application {
         border.setCenter(addGridPane(primaryStage));
         StackPane root = new StackPane();
         root.getChildren().add(border);
-        primaryStage.setScene(new Scene(root,1050,600));
+        primaryStage.setScene(new Scene(root,1010,600));
         primaryStage.show();
 
     }
@@ -229,7 +231,7 @@ public class Main extends Application {
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
         HBox dialogVbox = new HBox(20);
-        VBox details = new VBox(40);
+        VBox details = new VBox(10);
         Label name = new Label(product.productName);
         name.setStyle("-fx-font-weight: bold; -fx-padding: 5px");
         Label brand = new Label("Marque: " + product.productBrand);
@@ -239,22 +241,130 @@ public class Main extends Application {
         details.getChildren().add(name);
         details.getChildren().add(brand);
         details.getChildren().add(price);
-        details.getChildren().add(new Button("Acheter Maintenant"));
+        GridPane quantityGrid = new GridPane();
+        Label quantityLabel = new Label("Quantité: ");
+        TextField quantityField = new TextField();
+        quantityGrid.add(quantityLabel, 0, 0);
+        quantityGrid.add(quantityField,1,0);
+        details.getChildren().add(quantityGrid);
+        Button buyButton = new Button("Acheter Maintenant");
+        buyButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                showPurchaseForm(product, primaryStage, Integer.parseInt(quantityField.getText()), dialog);
+            }
+        });
+        details.getChildren().add(buyButton);
         FileInputStream t = new FileInputStream(product.productImage);
         Image tt = new Image(t);
         ImageView ttt = new ImageView(tt);
-        ttt.setFitHeight(300);
+        ttt.setFitHeight(200);
         ttt.setFitWidth(200);
         dialogVbox.getChildren().add(ttt);
         dialogVbox.getChildren().add(details);
-        Scene dialogScene = new Scene(dialogVbox, 400, 300);
+        Scene dialogScene = new Scene(dialogVbox, 600, 200);
         dialog.setScene(dialogScene);
+        dialog.show();
+    }
+
+    public void showPurchaseForm(Product product, Stage primaryStage, int quantity, Stage productDialog){
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+        Text scenetitle;
+        Scene scene = new Scene(grid, 500, 350);
+        if(product.getProductQuantityAvailable() <= quantity){
+
+            scenetitle = new Text("Nous sommes désolé! Quantité non suffisante\n(Quantité Disponible : " + product.getProductQuantityAvailable() + ")");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 2, 1);
+        }
+        else {
+            productDialog.hide();
+            scenetitle = new Text("Veuillez saisir vos informations de livraison");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 2, 1);
+
+            Label lastname = new Label("Nom:");
+            grid.add(lastname, 0, 1);
+
+            TextField lastnameField = new TextField();
+            grid.add(lastnameField, 1, 1);
+
+            Label firstname = new Label("Prénom:");
+            grid.add(firstname, 0, 2);
+
+            TextField firstnameField = new TextField();
+            grid.add(firstnameField, 1, 2);
+
+            Label adress = new Label("Adresse:");
+            grid.add(adress, 0, 3);
+
+            TextField adressField = new TextField();
+            grid.add(adressField, 1, 3);
+
+            Label region = new Label("Etat/Region:");
+            grid.add(region, 0, 4);
+
+            TextField regionField = new TextField();
+            grid.add(regionField, 1, 4);
+
+            Label city = new Label("Ville:");
+            grid.add(city, 0, 5);
+
+            TextField cityField = new TextField();
+            grid.add(cityField, 1, 5);
+
+            Label postalCode = new Label("Code Postal:");
+            grid.add(postalCode, 0, 6);
+
+            TextField postalCodeField = new TextField();
+            grid.add(postalCodeField, 1, 6);
+
+            Label phone = new Label("Téléphone:");
+            grid.add(phone, 0, 7);
+
+            TextField phoneField = new TextField();
+            grid.add(phoneField, 1, 7);
+
+            Button validateButton = new Button("Valider la Commande");
+            validateButton.setOnAction(event -> {
+                dialog.hide();
+                showValidation(primaryStage);
+            });
+            HBox hbBtn = new HBox(10);
+            hbBtn.setMargin(validateButton, new Insets(0, 0, 0, 90));
+            hbBtn.getChildren().add(validateButton);
+            grid.add(hbBtn, 1, 8);
+        }
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    public void showValidation(Stage primaryStage){
+        final Stage dialog = new Stage();
+        dialog.initOwner(primaryStage);
+        GridPane gridOK = new GridPane();
+        gridOK.setAlignment(Pos.CENTER);
+        gridOK.setHgap(10);
+        gridOK.setVgap(10);
+        gridOK.setPadding(new Insets(25, 25, 25, 25));
+        Text sceneTitle = new Text("Commande bien validé! Vous recevrez bientôt votre commande\nMerci pour votre confiance \uD83D\uDE0A");
+        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        gridOK.add(sceneTitle, 0, 0, 2, 1);
+        Scene OKscene = new Scene(gridOK, 600, 100);
+        dialog.setScene(OKscene);
         dialog.show();
     }
 
     public static void loadTestData(){
         products.add(new Product(
-                "Nutella Pâte à tartiner\nà La Noisette & Au Cacao\n600 G",
+                "Nutella Pâte à tartiner à La Noisette & Au Cacao 600 G",
                 24.40,
                 "Nutella",
                 "minimarket",
@@ -262,7 +372,7 @@ public class Main extends Application {
                 "assets/nutella.jpg")
         );
         products.add(new Product(
-                "El Manar Boite Thon entier\nA l'huile d'olive vierge\n400 Gr",
+                "El Manar Boite Thon entier A l'huile d'olive vierge 400 Gr",
                 13.00,
                 "El Manar",
                 "minimarket",
@@ -270,7 +380,7 @@ public class Main extends Application {
                 "assets/thon-el-manar.jpg")
         );
         products.add(new Product(
-                "Biolinge 1+1 Gratuit\nLessive liquide concentrée\nAu Savon de Marseille\n1,8 L",
+                "Biolinge 1+1 Gratuit Lessive liquide concentrée Au Savon de Marseille 1,8 L",
                 16.00,
                 " Biolinge",
                 "minimarket",
@@ -278,7 +388,7 @@ public class Main extends Application {
                 "assets/biolinge.jpg")
         );
         products.add(new Product(
-                "Gillette 4 x Lames de rasoir\nGillette Fusion5",
+                "Gillette 4 x Lames de rasoir Gillette Fusion5",
                 40.90,
                 "Gilette",
                 "minimarket",
@@ -286,7 +396,7 @@ public class Main extends Application {
                 "assets/gilette.jpg")
         );
         products.add(new Product(
-                "J'en Rêve Fleurie Couette\n2 places Protection Active\nExtra Douce - 400gr",
+                "J'en Rêve Fleurie Couette 2 places Protection Active Extra Douce - 400gr",
                 36.90,
                 "Reve",
                 "house_office",
@@ -294,7 +404,7 @@ public class Main extends Application {
                 "assets/couette.jpg")
         );
         products.add(new Product(
-                "Plaque 4 feux Inox\nGarantie - 1an",
+                "Plaque 4 feux Inox Garantie - 1an",
                 175.00,
                 "STAR ONE",
                 "house_office",
@@ -302,7 +412,7 @@ public class Main extends Application {
                 "assets/plaque.jpg")
         );
         products.add(new Product(
-                "Ampoule LED - RGB\nBluetooth - Haut parleur",
+                "Ampoule LED - RGB Bluetooth - Haut parleur",
                 29.00,
                 "Sans marque",
                 "house_office",
@@ -318,7 +428,7 @@ public class Main extends Application {
                 "assets/organisateurcosmetique.jpg")
         );
         products.add(new Product(
-                "miroir alarme chargeur USB électrique\nAffichage numérique LCD BLANC",
+                "miroir alarme chargeur USB électrique Affichage numérique LCD BLANC",
                 33.75,
                 "Sans marque",
                 "house_office",
@@ -326,7 +436,7 @@ public class Main extends Application {
                 "assets/alarme.jpg")
         );
         products.add(new Product(
-                "Étagère Murale Moderne\nNoir et Marron\n60 x 50 x 10 cm",
+                "Étagère Murale Moderne Noir et Marron 60 x 50 x 10 cm",
                 49.00,
                 "Sans marque",
                 "house_office",
@@ -334,7 +444,7 @@ public class Main extends Application {
                 "assets/etagere.jpg")
         );
         products.add(new Product(
-                "Parfum Ice Chill\nEau de Toilette pour Homme",
+                "Parfum Ice Chill Eau de Toilette pour Homme",
                 29.00,
                 "Axe",
                 "health_beauty",
@@ -342,7 +452,7 @@ public class Main extends Application {
                 "assets/axe.jpg")
         );
         products.add(new Product(
-                "PROTABAR Barres Protéinées\nBoite de 12 barres 50gr",
+                "PROTABAR Barres Protéinées Boite de 12 barres 50gr",
                 60.00,
                 "PROTABAR",
                 "health_beauty",
@@ -350,20 +460,12 @@ public class Main extends Application {
                 "assets/protabar.jpg")
         );
         products.add(new Product(
-                "Thermomètre Infrarouge sans Contact\nCorps et Objet - Certifier\nGaranti 1 An",
+                "Thermomètre Infrarouge sans Contact Corps et Objet - Certifier Garanti 1 An",
                 59.00,
                 "Sans marque",
                 "health_beauty",
                 10000,
                 "assets/thermometre.jpg")
-        );
-        products.add(new Product(
-                "Durex Performax Intense\n3 préservatifs",
-                9.66,
-                "Durex",
-                "health_beauty",
-                1305,
-                "assets/durex.jpg")
         );
         currentProducts.addAll(products);
 
@@ -382,7 +484,6 @@ public class Main extends Application {
             }
         }
         border.setCenter(addGridPane(primaryStage));
-
     }
 
 

@@ -37,9 +37,16 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception{
+        // Setting App Title
         primaryStage.setTitle("TP2 IHM - BARGHOUDA Mohamed Lamine & SNOUSSI Anis & GUEDRI Oussema");
+
+        // Setting Header
         border.setTop(addHeader());
+
+        // Setting Sidebar
         border.setLeft(addSideBar(primaryStage));
+
+        // Setting App Main Grid
         border.setCenter(addProductsGrid(primaryStage));
         StackPane root = new StackPane();
         root.getChildren().add(border);
@@ -57,7 +64,6 @@ public class Main extends Application {
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(15, 12, 15, 12));
         hbox.setSpacing(10);
-
         hbox.setStyle("-fx-background-color: #801f1f;");
         Label label = new Label("Besoin d'aide pour commander ? Appelez le 58 014 893!");
         label.setFont(Font.font("Cambria", 32));
@@ -382,13 +388,70 @@ public class Main extends Application {
             Button validateButton = new Button("Valider la Commande");
             validateButton.setOnAction(event -> {
                 dialog.hide();
-                showValidation(primaryStage);
+                showPayment(primaryStage);
             });
             HBox hbBtn = new HBox(10);
             hbBtn.setMargin(validateButton, new Insets(0, 0, 0, 90));
             hbBtn.getChildren().add(validateButton);
             grid.add(hbBtn, 1, 8);
         }
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    /**
+     * Once purchase form filled, shows payment infos
+     *
+     * @param primaryStage
+     */
+    public void showPayment(Stage primaryStage){
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+        Text scenetitle;
+        Scene scene = new Scene(grid, 500, 350);
+            scenetitle = new Text("Veuillez saisir vos informations de paiement");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 2, 1);
+
+            Label type = new Label("Type Carte Bancaire:");
+            grid.add(type, 0, 1);
+
+            TextField typeField = new TextField();
+            grid.add(typeField, 1, 1);
+
+            Label numberCard = new Label("Numéro Carte Bancaire:");
+            grid.add(numberCard, 0, 2);
+
+            TextField numberField = new TextField();
+            grid.add(numberField, 1, 2);
+
+            Label adress = new Label("Date D'expiration:");
+            grid.add(adress, 0, 3);
+
+        DatePicker date = new DatePicker();
+        grid.add(date, 1, 3);
+
+            Label code = new Label("Code:");
+            grid.add(code, 0, 4);
+
+            PasswordField codeField = new PasswordField();
+            grid.add(codeField, 1, 4);
+
+            Button validateButton = new Button("Valider le Paiement");
+            validateButton.setOnAction(event -> {
+                dialog.hide();
+                showValidation(primaryStage);
+            });
+            HBox hbBtn = new HBox(10);
+            hbBtn.setMargin(validateButton, new Insets(0, 0, 0, 40));
+            hbBtn.getChildren().add(validateButton);
+            grid.add(hbBtn, 1, 8);
         dialog.setScene(scene);
         dialog.show();
     }
